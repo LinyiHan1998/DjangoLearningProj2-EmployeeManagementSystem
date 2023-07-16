@@ -1,0 +1,267 @@
+{% extends 'layout.html' %}
+{% block content %}
+
+    <div class="container">
+        <input type="button" id="btnAdd" value="New Order1 js" class="btn btn-success">
+        <input type="button" value="New Order2 html" class="btn btn-success" data-toggle="modal" data-target="#myModal">
+        <div class="panel panel-default">
+            <!-- Default panel contents -->
+            <div class="panel-heading">
+                <span class="glyphicon glyphicon-th-list" aria-hidden="true"></span>
+                User List
+            </div>
+
+            <!-- Table -->
+            <table class="table table-bordered">
+                <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Order Number</th>
+                    <th>Title</th>
+                    <th>Price</th>
+                    <th>Status</th>
+                    <th>Admin</th>
+                    <th>Method</th>
+
+
+                </tr>
+                </thead>
+                <tbody>
+                {% for item in queryset %}
+                    <tr uid= {{ item.id }}>
+                        <td>{{ item.id }}</td>
+                        <td>{{ item.Oid }}</td>
+                        <td>{{ item.title }}</td>
+                        <td>{{ item.price }}</td>
+                        <td>{{ item.get_status_display }}</td>
+                        <td>{{ item.admin.username }}</td>
+                        <td>
+
+                            <input uid="{{ item.id }}" type="button" class="btn btn-primary btn-xs btn-edit"
+                                   value="Edit">
+                            <input uid="{{ item.id }}" class="btn btn-danger btn-xs btn-delete" type="button"
+                                   value="Delete">
+                        </td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        <nav aria-label="...">
+            <ul class="pagination">
+                {{ page_string }}
+
+            </ul>
+        </nav>
+
+    </div>
+    <!-- New/Edit Order Modal -->
+    <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                            aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title" id="myModalLabel"></h4>
+                </div>
+                <div class="modal-body">
+                    <form id="formModal" novalidate>
+                        <div class="clearfix">
+                            {% for field in form %}
+                                <div class="col-xs-6">
+                                    <div class="form-group" style="position: relative;">
+                                        <label>{{ field.label }}</label>
+                                        {{ field }}
+                                        {{ field.errors }}
+                                        <span class="error-msg" style="color: red;position: absolute;"></span>
+                                    </div>
+                                </div>
+                            {% endfor %}
+
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                    <button type="button" id="btnSave" class="btn btn-primary">Save</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Delete Order Modal -->
+
+    <div class="modal fade" id="delModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+        <div class="modal-dialog" role="document">
+            <div class="alert alert-danger alert-dismissible fade in" role="alert">
+                <h4>Sure you want to delete?</h4>
+                <p style="margin: 10px 0;">all related data will be removed</p>
+                <p style="text-align: right">
+                    <button id="btnConfirmDelete" type="button" class="btn btn-danger">continue</button>
+                    <button type="button" class="btn btn-default" data-dismiss="modal">cancel</button>
+                </p>
+            </div>
+        </div>
+    </div>
+
+{% endblock %}
+
+{% block js %}
+    <script type="text/javascript">
+        var DELETE_ID;
+        var EDIT_ID;
+        $(function () {
+            bindBtnAddEvent();
+            bindbtnSaveEvent();
+            bindbtnDeleteEvent();
+            bindbtnConfirmDeleteEvent();
+            bindbtnEditEvent();
+        })
+
+        function bindBtnAddEvent() {
+            $("#btnAdd").click(function () {
+                EDIT_ID = undefined;
+                $("#myModalLabel").text('Add');
+                $('#myModal').modal('show');
+            })
+        }
+
+        function bindbtnSaveEvent() {
+            $("#btnSave").click(function () {
+                $(".error-msg").text("");
+                if(EDIT_ID){
+                    doEdit();
+                }else{
+                    doAdd();
+
+                }
+
+            })
+            function doAdd(){
+                $.ajax({
+                    url: "/order/add",
+                    type: "post",
+                    data: $("#formModal").serialize(),
+                    dataType: "Json",
+                    success: function (res) {
+                        if (res.status) {
+                            //alert("success");
+                            //$("#formAdd")是jquery对象，$("#formAdd")[0]是dom对象，只有dom对象有reset方法
+                            $("#formModal")[0].reset();
+
+                            //关闭对话框
+                            $("#myModal").modal('hide');
+                            location.reload()
+
+                        } else {
+                            $.each(res.error, function (name, data) {
+                                //console.log(name, data);
+                                $("#id_" + name).next().text(data[0])
+                            })
+                        }
+                    }
+                })
+            }
+            function doEdit(){
+                $.ajax({
+                    url: "/order/edit/"+"?uid="+EDIT_ID,
+                    type: "post",
+                    data: $("#formModal").serialize(),
+                    dataType: "Json",
+                    success: function (res) {
+                        if (res.status) {
+                            //alert("success");
+                            //$("#formAdd")是jquery对象，$("#formAdd")[0]是dom对象，只有dom对象有reset方法
+                            $("#formModal")[0].reset();
+
+                            //关闭对话框
+                            $("#myModal").modal('hide');
+                            location.reload()
+
+                        } else {
+                            if (res.tips) {
+                                alert(res.tips);
+
+                            } else {
+                            $.each(res.error, function (name, data) {
+                                //console.log(name, data);
+                                $("#id_" + name).next().text(data[0])
+                            })
+                        }
+                        }
+                    }
+                })
+            }
+        }
+
+        function bindbtnDeleteEvent() {
+            $(".btn-delete").click(function () {
+                $('#delModal').modal('show')
+                DELETE_ID = $(this).attr("uid")
+            });
+        }
+
+        function bindbtnConfirmDeleteEvent() {
+            $("#btnConfirmDelete").click(function () {
+                $.ajax({
+                    url: "/order/delete/",
+                    type: "GET",
+                    data: {
+                        uid: DELETE_ID
+                    },
+                    dataType: "Json",
+                    success: function (res) {
+                        if (res.status) {
+                            $('#delModal').modal('hide');
+                            //刷新页面可以让分页永远都是足够的行数
+                            //location.reload();
+                            //办法2:用js删掉某一行的数据，这样一页会越来越少，不会补上去
+                            $("tr[uid='" + DELETE_ID + "']").remove();
+                            DELETE_ID = 0;
+                        } else {
+                            alert(res.error)
+                        }
+
+                    }
+
+                })
+            });
+        }
+
+        function bindbtnEditEvent() {
+            $(".btn-edit").click(function () {
+                var uid = $(this).attr("uid");
+                EDIT_ID = uid;
+
+
+                //发送ajax去后台获取本行相关数据
+                $.ajax({
+                    url: "/order/detail",
+                    type: "get",
+                    data: {
+                        uid: uid
+                    },
+                    success: function (res) {
+                        if (res.status) {
+
+                            $.each(res.data, function(name,value){
+                                $("#id_"+name).val(value)
+
+                            })
+                            $("#myModalLabel").text('Edit');
+
+                            $('#myModal').modal('show');
+
+                        } else {
+                            alert(res.error);
+                        }
+                    }
+                })
+                //在对话框中展示
+
+            })
+
+        }
+
+    </script>
+{% endblock %}

@@ -1,0 +1,70 @@
+{% extends 'layout.html' %}
+{% load static %}
+{% block css %}
+    <link rel="stylesheet" href="{% static 'plugin/bootsrtap-datepicker/css/datepicker.css' %}">
+{% endblock %}
+{% block content %}
+     <div class="container">
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <h3 class="panel-title">Add User</h3>
+                </div>
+                <div class="panel-body">
+                    <form method="POST">
+                        {% csrf_token %}
+                          <div class="form-group">
+                            <label >Name</label>
+                            <input type="text" class="form-control" name="Title" placeholder="Name">
+                            </div>
+                         <div class="form-group">
+                            <label >Password</label>
+                            <input type="text" class="form-control" name="Password" placeholder="Password">
+                            </div>
+                        <div class="form-group">
+                            <label >Age</label>
+                            <input type="text" class="form-control" name="Age" placeholder="Age">
+                            </div>
+                        <div class="form-group">
+                            <label >Account</label>
+                            <input type="text" class="form-control" name="Account" placeholder="Account">
+                            </div>
+                        <div class="form-group">
+                            <label >Employed At</label>
+                            <input id="dt" type="text" class="form-control" name="Employed_At" placeholder="Employed At">
+                            </div>
+                        <div class="form-group">
+                            <label >Department</label>
+                            <select class="form-control" name="Department">
+                                {% for item in depart_list %}
+                                <option value="{{ item.id }}">{{ item.title }}</option>
+                                {% endfor %}
+                            </select>
+                            </div>
+                        <div class="form-group">
+                            <label >Gender</label>
+                            <select class="form-control" name = "Gender">
+                                {% for item in gender_choices %}
+                                <option value="{{ item.0 }}">{{ item.1 }}</option>
+                                {% endfor %}
+                            </select>
+
+                            </div>
+
+                    <button type="submit" class="btn btn-primary">Submit</button>
+                    </form>
+                </div>
+</div>
+        </div>
+{% endblock %}
+{% block js %}
+    <script src="{% static 'plugin/bootsrtap-datepicker/js/bootstrap-datepicker.js' %}"></script>
+    <script>
+    $(function(){
+        $('#dt').datepicker({
+            format:'yyyy-mm-dd',
+            startDate:'0',
+            autoclose:true
+        });
+    })
+    </script>
+{% endblock %}

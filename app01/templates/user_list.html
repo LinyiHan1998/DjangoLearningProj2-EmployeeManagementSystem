@@ -1,0 +1,67 @@
+{% extends 'layout.html' %}
+{% block content %}
+    <div class="container">
+        <div style="margin-bottom: 10px">
+            <a class="btn btn-success" href="add/">
+                <span class="glyphicon glyphicon-plus-sign" aria-hidden="true"></span>
+                Add User
+            </a>
+            <a class="btn btn-success" href="modeladd/">
+                <span class="glyphicon glyphicon-plus-sign" aria-hidden="true"></span>
+                Add User ModelForm
+            </a>
+        </div>
+        <div class="bs-example" data-example-id="panel-without-body-with-table">
+            <div class="panel panel-default">
+                <!-- Default panel contents -->
+                <div class="panel-heading">
+                    <span class="glyphicon glyphicon-th-list" aria-hidden="true"></span>
+                    User List
+                </div>
+
+                <!-- Table -->
+                <table class="table table-bordered">
+                    <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>User Name</th>
+                        <th>Password</th>
+                        <th>Age</th>
+                        <th>Account Balance</th>
+                        <th>Employed At</th>
+                        <th>Department</th>
+                        <th>Gender</th>
+                        <th>Method</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for item in data %}
+                        <tr>
+                            <td>{{ item.id }}</td>
+                            <td>{{ item.name }}</td>
+                            <td>{{ item.password }}</td>
+                            <td>{{ item.age }}</td>
+                            <td>{{ item.account }}</td>
+                            <td>{{ item.create_time|date:"Y-m-d" }}</td>
+                            <td>{{ item.depart.title }}</td>
+                            <td>{{ item.get_gender_display }}</td>
+                            <td>
+                                <a class="btn btn-primary btn-xs" href="{{ item.id }}/edit/">Edit</a>
+                                <a class="btn btn-danger btn-xs" href="/user/{{ item.id }}/delete/">Delete</a>
+                            </td>
+                        </tr>
+                    {% endfor %}
+
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <nav aria-label="...">
+            <ul class="pagination">
+                {{ page_string }}
+
+            </ul>
+        </nav>
+    </div>
+    </div>
+{% endblock %}
