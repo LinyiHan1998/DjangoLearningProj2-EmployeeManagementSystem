@@ -10,6 +10,23 @@ class Pagination(object):
         :param request: web request
         :param queryset: list of data that satisfy searching criteria
         :param search_data: web searching request
+
+        HTML:
+            <nav aria-label="...">
+                <ul class="pagination">
+                    {{ page_string }}
+    
+                </ul>
+            </nav>
+        Python:
+            page = Pagination(request,queryset,'')
+            form = OrderModelForm()
+
+            context = {
+                'form':form,
+                "queryset":page.queryset,
+                'page_string':page.html(),
+            }
         """
         page = request.GET.get('page',"1")
         if page.isdecimal():
